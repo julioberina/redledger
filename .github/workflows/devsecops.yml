@@ -1,0 +1,61 @@
+name: RedLedger DevSecOps Pipeline
+
+on:
+  push:
+    branches: [ main, 'phase/**', 'vuln/**' ]
+  pull_request:
+    branches: [ main, 'phase/**' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4.7.0
+        with:
+          java-version: '25'
+          distribution: 'oracle'
+          cache: gradle
+
+      - name: Build with Gradle
+        run: ./gradlew build --no-daemon
+
+      - name: Run Tests
+        run: ./gradlew test --no-daemon
+
+  sca-snyk:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Run Snyk SCA Scan
+        uses: actions/checkout@v4.2.2
+        # TODO: Configure Snyk token and enable scan
+        # uses: snyk/actions/gradle@master
+        # env:
+        #   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        # with:
+        #   args: --severity-threshold=medium
+        run: echo "Snyk SCA scan placeholder - configure SNYK_TOKEN secret to enable"
+
+  sast-semgrep:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Run Semgrep SAST Scan
+        uses: actions/checkout@v4.2.2
+        # TODO: Configure Semgrep and enable scan
+        # uses: semgrep/semgrep-action@v1
+        # with:
+        #   config: p/java p/owasp-top-ten
+        run: echo "Semgrep SAST scan placeholder - configure to enable"
+
+  # TODO: Add DAST scanning step
+  # dast:
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - name: Run ZAP DAST Scan
+  #       run: echo "ZAP DAST scan placeholder"
