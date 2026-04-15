@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Run Snyk SCA Scan
+      - name: Checkout code
         uses: actions/checkout@v4.2.2
         # TODO: Configure Snyk token and enable scan
         # uses: snyk/actions/gradle@master
@@ -38,18 +38,20 @@ jobs:
         #   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         # with:
         #   args: --severity-threshold=medium
+      - name: Run Snyk SCA Scan
         run: echo "Snyk SCA scan placeholder - configure SNYK_TOKEN secret to enable"
 
   sast-semgrep:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Run Semgrep SAST Scan
+      - name: Checkout code
         uses: actions/checkout@v4.2.2
         # TODO: Configure Semgrep and enable scan
         # uses: semgrep/semgrep-action@v1
         # with:
         #   config: p/java p/owasp-top-ten
+      - name: Run Semgrep SAST Scan
         run: echo "Semgrep SAST scan placeholder - configure to enable"
 
   # TODO: Add DAST scanning step
