@@ -1,8 +1,15 @@
 package com.redledger.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,56 +20,66 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
-    @Value("${jwt.secret:defaultSecretKeyThatShouldBeChangedInProduction12345}")
-    private String jwtSecret;
+	private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("${jwt.expiration:86400000}")
-    private long jwtExpiration; // 24 hours default
+	@Value("${jwt.secret}")
+	private String jwtSecret;
 
-    private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-    }
+	@Value("${jwt.expiration:86400000}")
+	private long jwtExpiration;
 
-    public String generateToken(String username, String role) {
-        // TODO: Implement JWT token generation
-        return Jwts.builder()
-                .subject(username)
-                .claim("role", role)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSigningKey())
-                .compact();
-    }
+	private SecretKey signingKey;
 
-    public String getUsernameFromToken(String token) {
-        // TODO: Add proper error handling
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.getSubject();
-    }
+	@PostConstruct
+	public void init() {
+		this.signingKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+	}
 
-    public String getRoleFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.get("role", String.class);
-    }
+	public String generateToken(String username, String role) {
+		return Jwts.builder()
+			.subject(username)
+			.claim("role", role)
+			.issuedAt(new Date())
+			.expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+			.signWith(signingKey)
+			.compact();
+	}
 
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
-            return true;
-        } catch (Exception e) {
-            // TODO: Add proper logging
-            return false;
-        }
-    }
+	public String getUsernameFromToken(String token) {
+		return parseClaims(token).getSubject();
+	}
+
+	public String getRoleFromToken(String token) {
+		return parseClaims(token).get("role", String.class);
+	}
+
+	public boolean validateToken(String token) {
+		try {
+			Jwts.parser()
+				.verifyWith(signingKey)
+				.build()
+				.parseSignedClaims(token);
+
+			return true;
+		} catch (ExpiredJwtException e) {
+			logger.warn("JWT token is expired: {}", e.getMessage());
+		} catch (UnsupportedJwtException e) {
+			logger.warn("JWT token is unsupported: {}", e.getMessage());
+		} catch (MalformedJwtException e) {
+			logger.warn("JWT token is malformed: {}", e.getMessage());
+		} catch (SignatureException e) {
+			logger.warn("JWT signature validation failed: {}", e.getMessage());
+		} catch (IllegalArgumentException e) {
+			logger.warn("JWT claims string is empty or null: {}", e.getMessage());
+		}
+		return false;
+	}
+
+	private Claims parseClaims(String token) {
+		return Jwts.parser()
+			.verifyWith(signingKey)
+			.build()
+			.parseSignedClaims(token)
+			.getPayload();
+	}
 }
