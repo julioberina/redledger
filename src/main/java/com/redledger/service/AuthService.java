@@ -5,6 +5,7 @@ import com.redledger.dto.LoginResponse;
 import com.redledger.dto.RegisterRequest;
 import com.redledger.entity.User;
 import com.redledger.repository.UserRepository;
+import com.redledger.security.JwtUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,10 +17,14 @@ public class AuthService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final JwtUtils jwtUtils;
 
-	public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+	public AuthService(UserRepository userRepository,
+					   PasswordEncoder passwordEncoder,
+					   JwtUtils jwtUtils) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.jwtUtils = jwtUtils;
 	}
 
 	public User register(RegisterRequest request) {
@@ -42,7 +47,20 @@ public class AuthService {
 	}
 
 	public LoginResponse login(LoginRequest request) {
-		// TODO (1.4): Find user, verify with passwordEncoder.matches(), generate JWT
-		throw new UnsupportedOperationException("Login not yet implemented");
+		User user = userRepository.findByUsername(request.getUsername())
+			.orElseThrow(() -> {
+				log.warn("Login failed — username not found: {}", request.getUsername());
+				return new IllegalArgumentException("Invalid credentials");
+			});
+
+		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+			log.warn("Login failed — incorrect password for username: {}", request.getUsername());
+			throw new IllegalArgumentException("Invalid credentials");
+		}
+
+		String token = jwtUtils.generateToken(user.getUsername(), user.getRole());
+		log.info("Login successful: id={}, username={}", user.getId(), user.getUsername());
+
+		return new LoginResponse(token, user.getUsername(), user.getRole());
 	}
 }
