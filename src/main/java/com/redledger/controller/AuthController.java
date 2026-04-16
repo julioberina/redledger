@@ -16,24 +16,31 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final AuthService authService;
+	private final AuthService authService;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
+	public AuthController(AuthService authService) {
+		this.authService = authService;
+	}
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
-        // TODO: Implement proper error handling
-        User user = authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", "User registered successfully", "userId", user.getId()));
-    }
+	@PostMapping("/register")
+	public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+		try {
+			User user = authService.register(request);
+			return ResponseEntity.status(HttpStatus.CREATED)
+				.body(Map.of(
+					"message", "User registered successfully",
+					"userId", user.getId()
+				));
+		} catch (IllegalArgumentException ex) {
+			return ResponseEntity.status(HttpStatus.CONFLICT)
+				.body(Map.of("error", ex.getMessage()));
+		}
+	}
 
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        // TODO: Implement proper authentication
-        LoginResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
-    }
+	@PostMapping("/login")
+	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+		// TODO: Implement proper authentication
+		LoginResponse response = authService.login(request);
+		return ResponseEntity.ok(response);
+	}
 }
