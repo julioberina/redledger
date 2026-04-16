@@ -38,9 +38,13 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-		// TODO: Implement proper authentication
-		LoginResponse response = authService.login(request);
-		return ResponseEntity.ok(response);
+	public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+		try {
+			LoginResponse response = authService.login(request);
+			return ResponseEntity.ok(response);
+		} catch (IllegalArgumentException ex) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+				.body(Map.of("error", ex.getMessage()));
+		}
 	}
 }
