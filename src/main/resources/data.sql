@@ -9,9 +9,9 @@
 
 -- Users (passwords are BCrypt hashed)
 INSERT INTO users (id, username, password, email, role, created_at) VALUES
-(1, 'admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'admin@redledger.com', 'ROLE_ADMIN', '2024-01-01 00:00:00'),
-(2, 'jsmith', '$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KsnmG', 'john.smith@email.com', 'ROLE_USER', '2024-01-15 10:30:00'),
-(3, 'jdoe', '$2a$10$EkRAjhMZqCFGFo7GMveQ.OPbVYPsXmvA7V/5MSMGwkMSGeMaJysIK', 'jane.doe@email.com', 'ROLE_USER', '2024-02-01 14:00:00');
+(1, 'admin', '$2b$10$N9pmVzrVnzx3DhqiIU63VOEd2Dglo5lddD33kkVTj2W/gg/GrHh/u', 'admin@redledger.com', 'ROLE_ADMIN', '2024-01-01 00:00:00'),
+(2, 'jsmith', '$2b$10$FF5rBkxPwD39Db4fqodDIukFZ9mItg0cjdhEhSIEzB6Cd2g3TbxRa', 'john.smith@email.com', 'ROLE_USER', '2024-01-15 10:30:00'),
+(3, 'jdoe', '$2b$10$jEnDFPcrbPX6CVp26lDQa./JG0FlFyRFvm.2lOYwIXnCAM9zI44OG', 'jane.doe@email.com', 'ROLE_USER', '2024-02-01 14:00:00');
 
 -- Accounts
 -- Admin accounts
@@ -38,3 +38,8 @@ INSERT INTO transactions (id, source_account_id, destination_account_id, amount,
 (5, 3, 1, 200.00, 'Service fee', 'COMPLETED', '2024-03-20 16:30:00'),
 (6, 5, 4, 75.00, 'Shared expense', 'COMPLETED', '2024-03-25 10:00:00'),
 (7, 6, 2, 1500.00, 'Investment transfer', 'COMPLETED', '2024-04-01 08:00:00');
+
+-- Advance sequences past the seeded data so Hibernate-generated IDs don't collide
+ALTER TABLE users        ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE accounts     ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE transactions ALTER COLUMN id RESTART WITH 100;
