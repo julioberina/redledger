@@ -29,7 +29,7 @@ public class AccountController {
     @GetMapping("/{id}")
     public ResponseEntity<AccountResponse> getAccountById(@PathVariable Long id) {
         // TODO: Add authorization check - potential IDOR vulnerability point
-        return accountService.getAccountById(id)
+        return accountService.getAccount(id)
                 .map(account -> ResponseEntity.ok(accountService.toAccountResponse(account)))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -37,7 +37,7 @@ public class AccountController {
     @GetMapping("/{id}/balance")
     public ResponseEntity<?> getAccountBalance(@PathVariable Long id) {
         // TODO: Add authorization check
-        return accountService.getAccountById(id)
+        return accountService.getAccount(id)
                 .map(account -> ResponseEntity.ok(
                         java.util.Map.of("accountId", account.getId(), "balance", account.getBalance())))
                 .orElse(ResponseEntity.notFound().build());
