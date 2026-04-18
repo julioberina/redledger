@@ -15,8 +15,9 @@ public class Account {
     @Column(name = "account_number", nullable = false, unique = true)
     private String accountNumber;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false)
-    private String accountType; // CHECKING, SAVINGS
+    private AccountType accountType;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance;
@@ -36,7 +37,7 @@ public class Account {
     // Constructors
     public Account() {}
 
-    public Account(String accountNumber, String accountType, BigDecimal balance, User owner) {
+    public Account(String accountNumber, AccountType accountType, BigDecimal balance, User owner) {
         this.accountNumber = accountNumber;
         this.accountType = accountType;
         this.balance = balance;
@@ -50,8 +51,8 @@ public class Account {
     public String getAccountNumber() { return accountNumber; }
     public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
 
-    public String getAccountType() { return accountType; }
-    public void setAccountType(String accountType) { this.accountType = accountType; }
+    public AccountType getAccountType() { return accountType; }
+    public void setAccountType(AccountType accountType) { this.accountType = accountType; }
 
     public BigDecimal getBalance() { return balance; }
     public void setBalance(BigDecimal balance) { this.balance = balance; }
