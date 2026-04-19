@@ -1,5 +1,6 @@
 package com.redledger.security;
 
+import com.redledger.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,10 +27,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		"/h2-console/**"
 	);
 	private final JwtUtils jwtUtils;
+	private final UserService userService;
 	private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-	public JwtAuthenticationFilter(JwtUtils jwtUtils) {
+	public JwtAuthenticationFilter(JwtUtils jwtUtils, UserService userService) {
 		this.jwtUtils = jwtUtils;
+		this.userService = userService;
 	}
 
 	@Override
@@ -48,11 +52,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 			if (jwtUtils.validateToken(token)) {
 				String username = jwtUtils.getUsernameFromToken(token);
-				String role = jwtUtils.getRoleFromToken(token);
+				UserDetails userDetails = userService.loadUserByUsername(username);
 
 				UsernamePasswordAuthenticationToken authentication =
-					new UsernamePasswordAuthenticationToken(username, null,
-						List.of(new SimpleGrantedAuthority(role)));
+					new UsernamePasswordAuthenticationToken(userDetails, null,
+						userDetails.getAuthorities());
 
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 				log.debug("Authenticated user '{}' via JWT", username);
