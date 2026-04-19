@@ -3,9 +3,15 @@ package com.redledger.service;
 import com.redledger.dto.TransferRequest;
 import com.redledger.dto.TransferResponse;
 import com.redledger.dto.TransactionResponse;
+import com.redledger.entity.Account;
 import com.redledger.entity.Transaction;
+import com.redledger.entity.TransactionStatus;
+import com.redledger.repository.AccountRepository;
 import com.redledger.repository.TransactionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,44 +19,87 @@ import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
+	private static final Logger log = LoggerFactory.getLogger(TransactionService.class);
 
-    private final TransactionRepository transactionRepository;
+	private final TransactionRepository transactionRepository;
+	private final AccountRepository accountRepository;
 
-    public TransactionService(TransactionRepository transactionRepository) {
-        this.transactionRepository = transactionRepository;
-    }
+	public TransactionService(TransactionRepository transactionRepository,
+							  AccountRepository accountRepository) {
+		this.transactionRepository = transactionRepository;
+		this.accountRepository = accountRepository;
+	}
 
-    public TransferResponse transfer(TransferRequest request) {
-        // TODO: Implement transfer logic
-        // 1. Validate source account belongs to authenticated user
-        // 2. Validate destination account exists
-        // 3. Check sufficient balance
-        // 4. Perform transfer (debit source, credit destination)
-        // 5. Create transaction record
-        throw new UnsupportedOperationException("Transfer not yet implemented");
-    }
+	@Transactional
+	public TransferResponse transfer(TransferRequest request) {
+		Account source = accountRepository.findById(request.getSourceAccountId())
+			.orElseThrow(() -> new IllegalArgumentException(
+				"Source account not found: " + request.getSourceAccountId()));
 
-    public List<Transaction> getTransactionsByAccountId(Long accountId) {
-        // TODO: Add authorization check
-        return transactionRepository.findBySourceAccountIdOrDestinationAccountId(accountId, accountId);
-    }
+		Account destination = accountRepository.findById(request.getDestinationAccountId())
+			.orElseThrow(() -> new IllegalArgumentException(
+				"Destination account not found: " + request.getDestinationAccountId()));
 
-    public Optional<Transaction> getTransactionById(Long id) {
-        // TODO: Add authorization check - IDOR vulnerability point
-        return transactionRepository.findById(id);
-    }
+		if (source.getId().equals(destination.getId()))
+			throw new IllegalArgumentException("Source and destination accounts must differ");
 
-    public TransactionResponse toTransactionResponse(Transaction tx) {
-        TransactionResponse response = new TransactionResponse();
-        response.setId(tx.getId());
-        response.setSourceAccountId(tx.getSourceAccount().getId());
-        response.setSourceAccountNumber(tx.getSourceAccount().getAccountNumber());
-        response.setDestinationAccountId(tx.getDestinationAccount().getId());
-        response.setDestinationAccountNumber(tx.getDestinationAccount().getAccountNumber());
-        response.setAmount(tx.getAmount());
-        response.setDescription(tx.getDescription());
-        response.setStatus(tx.getStatus());
-        response.setCreatedAt(tx.getCreatedAt());
-        return response;
-    }
+		if (source.getBalance().compareTo(request.getAmount()) < 0) {
+			log.warn("Insufficient balance on account {} for transfer of {}",
+				source.getId(), request.getAmount());
+
+			Transaction failed = new Transaction(source, destination,
+				request.getAmount(), request.getDescription(), TransactionStatus.FAILED);
+
+			transactionRepository.save(failed);
+
+			TransferResponse response = new TransferResponse();
+			response.setStatus(TransactionStatus.FAILED);
+
+			return response;
+		}
+
+		source.setBalance(source.getBalance().subtract(request.getAmount()));
+		destination.setBalance(destination.getBalance().add(request.getAmount()));
+
+		accountRepository.save(source);
+		accountRepository.save(destination);
+
+		Transaction tx = new Transaction(source, destination,
+			request.getAmount(), request.getDescription(), TransactionStatus.COMPLETED);
+
+		transactionRepository.save(tx);
+
+		log.debug("Transfer of {} from account {} to account {} completed",
+			request.getAmount(), source.getId(), destination.getId());
+
+		TransferResponse response = new TransferResponse();
+		response.setTransactionId(tx.getId());
+		response.setStatus(TransactionStatus.COMPLETED);
+
+		return response;
+	}
+
+	public List<Transaction> getTransactionsByAccountId(Long accountId) {
+		// TODO: [A1] — No ownership check here; IDOR vulnerability (Phase 3)
+		return transactionRepository.findBySourceAccountIdOrDestinationAccountId(accountId, accountId);
+	}
+
+	public Optional<Transaction> getTransactionById(Long id) {
+		// TODO: [A1] — No ownership check here; IDOR vulnerability (Phase 3)
+		return transactionRepository.findById(id);
+	}
+
+	public TransactionResponse toTransactionResponse(Transaction tx) {
+		TransactionResponse response = new TransactionResponse();
+		response.setId(tx.getId());
+		response.setSourceAccountId(tx.getSourceAccount().getId());
+		response.setSourceAccountNumber(tx.getSourceAccount().getAccountNumber());
+		response.setDestinationAccountId(tx.getDestinationAccount().getId());
+		response.setDestinationAccountNumber(tx.getDestinationAccount().getAccountNumber());
+		response.setAmount(tx.getAmount());
+		response.setDescription(tx.getDescription());
+		response.setStatus(tx.getStatus());
+		response.setCreatedAt(tx.getCreatedAt());
+		return response;
+	}
 }
