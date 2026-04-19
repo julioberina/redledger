@@ -1,5 +1,7 @@
 package com.redledger.dto;
 
+import com.redledger.entity.TransactionStatus;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -10,7 +12,7 @@ public class TransferResponse {
     private Long destinationAccountId;
     private BigDecimal amount;
     private String description;
-    private String status;
+    private TransactionStatus status;
     private LocalDateTime createdAt;
 
     public TransferResponse() {}
@@ -31,8 +33,8 @@ public class TransferResponse {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public TransactionStatus getStatus() { return status; }
+    public void setStatus(TransactionStatus status) { this.status = status; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
