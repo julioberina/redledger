@@ -2,10 +2,12 @@ package com.redledger.controller;
 
 import com.redledger.dto.AccountResponse;
 import com.redledger.dto.BalanceResponse;
+import com.redledger.dto.TransactionResponse;
 import com.redledger.entity.Account;
 import com.redledger.entity.AccountType;
 import com.redledger.entity.User;
 import com.redledger.service.AccountService;
+import com.redledger.service.TransactionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,9 +23,11 @@ import java.util.stream.Collectors;
 public class AccountController {
 
 	private final AccountService accountService;
+	private final TransactionService transactionService;
 
-	public AccountController(AccountService accountService) {
+	public AccountController(AccountService accountService, TransactionService transactionService) {
 		this.accountService = accountService;
+		this.transactionService = transactionService;
 	}
 
 	@PostMapping
@@ -63,5 +67,15 @@ public class AccountController {
 		return accountService.getAccount(id)
 			.map(account -> ResponseEntity.ok(new BalanceResponse(id, account.getBalance())))
 			.orElse(ResponseEntity.notFound().build());
+	}
+
+	@GetMapping("/{id}/transactions")
+	public ResponseEntity<List<TransactionResponse>> getTransactionsByAccount(@PathVariable Long id) {
+		// TODO: Add authorization check - IDOR vulnerability point (Phase 3)
+		List<TransactionResponse> transactions = transactionService.getTransactionsByAccountId(id)
+			.stream()
+			.map(transactionService::toTransactionResponse)
+			.collect(Collectors.toList());
+		return ResponseEntity.ok(transactions);
 	}
 }
