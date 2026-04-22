@@ -8,10 +8,10 @@
 -- ===========================================
 
 -- Users (passwords are BCrypt hashed)
-INSERT INTO users (id, username, password, email, role, created_at) VALUES
-(1, 'admin', '$2b$10$N9pmVzrVnzx3DhqiIU63VOEd2Dglo5lddD33kkVTj2W/gg/GrHh/u', 'admin@redledger.com', 'ROLE_ADMIN', '2024-01-01 00:00:00'),
-(2, 'jsmith', '$2b$10$FF5rBkxPwD39Db4fqodDIukFZ9mItg0cjdhEhSIEzB6Cd2g3TbxRa', 'john.smith@email.com', 'ROLE_USER', '2024-01-15 10:30:00'),
-(3, 'jdoe', '$2b$10$jEnDFPcrbPX6CVp26lDQa./JG0FlFyRFvm.2lOYwIXnCAM9zI44OG', 'jane.doe@email.com', 'ROLE_USER', '2024-02-01 14:00:00');
+INSERT INTO users (id, username, password, email, role, active, created_at) VALUES
+(1, 'admin', '$2b$10$N9pmVzrVnzx3DhqiIU63VOEd2Dglo5lddD33kkVTj2W/gg/GrHh/u', 'admin@redledger.com', 'ROLE_ADMIN', true, '2024-01-01 00:00:00'),
+(2, 'jsmith', '$2b$10$FF5rBkxPwD39Db4fqodDIukFZ9mItg0cjdhEhSIEzB6Cd2g3TbxRa', 'john.smith@email.com', 'ROLE_USER', true, '2024-01-15 10:30:00'),
+(3, 'jdoe', '$2b$10$jEnDFPcrbPX6CVp26lDQa./JG0FlFyRFvm.2lOYwIXnCAM9zI44OG', 'jane.doe@email.com', 'ROLE_USER', true, '2024-02-01 14:00:00');
 
 -- Accounts
 -- Admin accounts

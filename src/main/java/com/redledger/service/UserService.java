@@ -13,39 +13,48 @@ import java.util.Optional;
 @Service
 public class UserService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+	private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+	public UserService(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-    }
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		return userRepository.findByUsername(username)
+			.orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+	}
 
-    public List<User> getAllUsers() {
-        // TODO: Implement user listing with proper authorization checks
-        return userRepository.findAll();
-    }
+	public List<User> getAllUsers() {
+		// TODO: Implement user listing with proper authorization checks
+		return userRepository.findByActiveTrue();
+	}
 
-    public Optional<User> getUserById(Long id) {
-        // TODO: Implement authorization check - should users only see their own profile?
-        return userRepository.findById(id);
-    }
+	public Optional<User> getUserById(Long id) {
+		// TODO: Implement authorization check - should users only see their own profile?
+		return userRepository.findById(id);
+	}
 
-    public Optional<User> getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
-    }
+	public Optional<User> getUserByUsername(String username) {
+		return userRepository.findByUsername(username);
+	}
 
-    public User createUser(User user) {
-        // TODO: Add password hashing, input validation, duplicate checks
-        return userRepository.save(user);
-    }
+	public User createUser(User user) {
+		// TODO: Add password hashing, input validation, duplicate checks
+		return userRepository.save(user);
+	}
 
-    public void deleteUser(Long id) {
-        // TODO: Add authorization check - admin only
-        userRepository.deleteById(id);
-    }
+	public Optional<User> updateUserRole(Long id, String role) {
+		return userRepository.findById(id).map(user -> {
+			user.setRole(role);
+			return userRepository.save(user);
+		});
+	}
+
+	public void deleteUser(Long id) {
+		userRepository.findById(id).ifPresent(user -> {
+			user.setActive(false);
+			userRepository.save(user);
+		});
+	}
 }
