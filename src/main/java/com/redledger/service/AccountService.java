@@ -61,7 +61,7 @@ public class AccountService {
 		AccountResponse response = new AccountResponse();
 		response.setId(account.getId());
 		response.setAccountNumber(account.getAccountNumber());
-		response.setAccountType(account.getAccountType().name());
+		response.setAccountType(account.getAccountType());
 		response.setBalance(account.getBalance());
 		response.setOwnerId(account.getOwner().getId());
 		response.setOwnerUsername(account.getOwner().getUsername());
