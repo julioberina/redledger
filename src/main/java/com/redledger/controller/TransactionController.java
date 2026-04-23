@@ -3,6 +3,7 @@ package com.redledger.controller;
 import com.redledger.dto.TransferRequest;
 import com.redledger.dto.TransferResponse;
 import com.redledger.dto.TransactionResponse;
+import com.redledger.entity.TransactionStatus;
 import com.redledger.service.TransactionService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,10 @@ public class TransactionController {
 	public ResponseEntity<TransferResponse> transfer(@Valid @RequestBody TransferRequest request) {
 		// TODO: Validate that source account belongs to authenticated user (Phase 3 IDOR stub)
 		TransferResponse response = transactionService.transfer(request);
-		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		HttpStatus httpStatus = response.getStatus().equals(TransactionStatus.FAILED) ?
+			HttpStatus.BAD_REQUEST :
+			HttpStatus.CREATED;
+		return ResponseEntity.status(httpStatus).body(response);
 	}
 
 	@GetMapping("/{id}")
