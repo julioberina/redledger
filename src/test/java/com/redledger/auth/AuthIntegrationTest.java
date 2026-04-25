@@ -140,11 +140,12 @@ class AuthIntegrationTest {
 			.andExpect(status().isUnauthorized());
 	}
 
+	// VULN: [A1] — Test updated to assert vulnerable behavior; ROLE_USER can access admin endpoints due to missing BFLA enforcement
 	@Test
 	@WithMockUser(username = "alice", roles = {"USER"})
-	void adminEndpoint_withUserRole_returns403() throws Exception {
+	void adminEndpoint_withUserRole_returns200_bflaVuln() throws Exception {
 		mockMvc.perform(get("/api/admin/users"))
-			.andExpect(status().isForbidden());
+			.andExpect(status().isOk());
 	}
 
 	@Test
