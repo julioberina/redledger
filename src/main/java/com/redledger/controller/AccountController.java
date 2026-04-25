@@ -55,7 +55,7 @@ public class AccountController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<AccountResponse> getAccount(@PathVariable Long id) {
-		// TODO: [A1] — No ownership check here; IDOR vulnerability (Phase 3)
+		// VULN: [A1] — No ownership check; authenticated user can fetch any account by ID (IDOR)
 		return accountService.getAccount(id)
 			.map(account -> ResponseEntity.ok(accountService.toAccountResponse(account)))
 			.orElse(ResponseEntity.notFound().build());
@@ -63,7 +63,7 @@ public class AccountController {
 
 	@GetMapping("/{id}/balance")
 	public ResponseEntity<BalanceResponse> getAccountBalance(@PathVariable Long id) {
-		// TODO: [A1] — No ownership check here; IDOR vulnerability (Phase 3)
+		// VULN: [A1] — No ownership check; authenticated user can fetch any account balance by ID (IDOR)
 		return accountService.getAccount(id)
 			.map(account -> ResponseEntity.ok(new BalanceResponse(id, account.getBalance())))
 			.orElse(ResponseEntity.notFound().build());
@@ -71,7 +71,7 @@ public class AccountController {
 
 	@GetMapping("/{id}/transactions")
 	public ResponseEntity<List<TransactionResponse>> getTransactionsByAccount(@PathVariable Long id) {
-		// TODO: Add authorization check - IDOR vulnerability point (Phase 3)
+		// VULN: [A1] — No ownership check; exposes any account's transaction list (IDOR)
 		List<TransactionResponse> transactions = transactionService.getTransactionsByAccountId(id)
 			.stream()
 			.map(transactionService::toTransactionResponse)

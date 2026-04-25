@@ -44,12 +44,12 @@ public class AccountService {
 	}
 
 	public Optional<Account> getAccount(Long accountId) {
-		// TODO: [A1] — No ownership check here; IDOR vulnerability (Phase 3)
+		// VULN: [A1] — No ownership check; any authenticated user can retrieve any account by ID (IDOR)
 		return accountRepository.findById(accountId);
 	}
 
 	public List<Account> getAccountsByUser(Long userId) {
-		// TODO: [A1] — No ownership check here; IDOR vulnerability (Phase 3)
+		// VULN: [A1] — userId taken from request param, not from authenticated principal; caller can pass any userId
 		return accountRepository.findByOwnerId(userId);
 	}
 
