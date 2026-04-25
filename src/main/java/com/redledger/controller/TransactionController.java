@@ -22,7 +22,7 @@ public class TransactionController {
 
 	@PostMapping
 	public ResponseEntity<TransferResponse> transfer(@Valid @RequestBody TransferRequest request) {
-		// TODO: Validate that source account belongs to authenticated user (Phase 3 IDOR stub)
+		// VULN: [A1] — No ownership check on sourceAccountId; caller can transfer funds from any account (IDOR)
 		TransferResponse response = transactionService.transfer(request);
 		HttpStatus httpStatus = response.getStatus().equals(TransactionStatus.FAILED) ?
 			HttpStatus.BAD_REQUEST :
@@ -32,7 +32,7 @@ public class TransactionController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<TransactionResponse> getTransactionById(@PathVariable Long id) {
-		// TODO: Add authorization check - IDOR vulnerability point (Phase 3)
+		// VULN: [A1] — No ownership check; any authenticated user can retrieve any transaction by ID (IDOR)
 		return transactionService.getTransactionById(id)
 			.map(transactionService::toTransactionResponse)
 			.map(ResponseEntity::ok)
