@@ -38,7 +38,8 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/api/auth/**").permitAll()
 				.requestMatchers("/h2-console/**").permitAll()
-				.requestMatchers("/api/admin/**").hasRole("ADMIN")
+				// VULN: [A1] — /api/admin/** requires only authentication, not ADMIN role; BFLA via missing function-level authorization
+				.requestMatchers("/api/admin/**").authenticated()
 				.anyRequest().authenticated()
 			)
 			.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))

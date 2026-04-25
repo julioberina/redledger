@@ -22,7 +22,7 @@ public class AdminController {
 		this.userService = userService;
 	}
 
-	// TODO: Add @PreAuthorize("hasRole('ADMIN')") — intentionally missing for Phase 3 BFLA
+	// VULN: [A1] — Missing @PreAuthorize("hasRole('ADMIN')"); any authenticated user can list all users (BFLA)
 	@GetMapping("/users")
 	public ResponseEntity<List<Map<String, Object>>> getAllUsers() {
 		List<Map<String, Object>> users = userService.getAllUsers().stream()
@@ -36,7 +36,7 @@ public class AdminController {
 		return ResponseEntity.ok(users);
 	}
 
-	// TODO: Add @PreAuthorize("hasRole('ADMIN')") — intentionally missing for Phase 3 BFLA
+	// VULN: [A1] — Missing @PreAuthorize("hasRole('ADMIN')"); any authenticated user can view any user's details (BFLA)
 	@GetMapping("/users/{id}")
 	public ResponseEntity<?> getUserById(@PathVariable Long id) {
 		return userService.getUserById(id)
@@ -49,14 +49,14 @@ public class AdminController {
 			.orElse(ResponseEntity.notFound().build());
 	}
 
-	// TODO: Add @PreAuthorize("hasRole('ADMIN')") — intentionally missing for Phase 3 BFLA
+	// VULN: [A1] — Missing @PreAuthorize("hasRole('ADMIN')"); any authenticated user can delete any user (BFLA)
 	@DeleteMapping("/users/{id}")
 	public ResponseEntity<?> deleteUser(@PathVariable Long id) {
 		userService.deleteUser(id);
 		return ResponseEntity.ok(Map.of("message", "User deactivated successfully"));
 	}
 
-	// TODO: Add @PreAuthorize("hasRole('ADMIN')") — intentionally missing for Phase 3 BFLA
+	// VULN: [A1] — Missing @PreAuthorize("hasRole('ADMIN')"); any authenticated user can escalate any user's role (BFLA / Privilege Escalation)
 	@PutMapping("/users/{id}/role")
 	public ResponseEntity<?> updateUserRole(@PathVariable Long id, @Valid @RequestBody UpdateUserRoleRequest request) {
 		return userService.updateUserRole(id, request.role())
