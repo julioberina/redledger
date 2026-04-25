@@ -30,6 +30,12 @@ public class TransactionService {
 		this.accountRepository = accountRepository;
 	}
 
+	/*
+	 * VULN: [A1] — (3.A1.4) sourceAccountId is caller-supplied with no ownership validation against the
+	 * authenticated principal. Any authenticated user can initiate a transfer debiting an account they do
+	 * not own. Unlike the read-only IDOR in 3.A1.2, this is a destructive write operation — funds can be
+	 * moved out of a victim's account without their knowledge.
+	 */
 	@Transactional
 	public TransferResponse transfer(TransferRequest request) {
 		// VULN: [A1] — sourceAccountId taken from request body, not validated against authenticated user; attacker can initiate transfers from any account (IDOR)

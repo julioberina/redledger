@@ -20,6 +20,10 @@ public class TransactionController {
 		this.transactionService = transactionService;
 	}
 
+	/*
+	 * VULN: [A1] — (3.A1.4) No ownership check on sourceAccountId; any authenticated user can drain
+	 * any account by supplying an arbitrary sourceAccountId in the request body (destructive IDOR)
+	 */
 	@PostMapping
 	public ResponseEntity<TransferResponse> transfer(@Valid @RequestBody TransferRequest request) {
 		// VULN: [A1] — No ownership check on sourceAccountId; caller can transfer funds from any account (IDOR)
