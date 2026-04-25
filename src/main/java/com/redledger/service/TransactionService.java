@@ -32,6 +32,7 @@ public class TransactionService {
 
 	@Transactional
 	public TransferResponse transfer(TransferRequest request) {
+		// VULN: [A1] — sourceAccountId taken from request body, not validated against authenticated user; attacker can initiate transfers from any account (IDOR)
 		Account source = accountRepository.findById(request.getSourceAccountId())
 			.orElseThrow(() -> new IllegalArgumentException(
 				"Source account not found: " + request.getSourceAccountId()));
@@ -80,12 +81,12 @@ public class TransactionService {
 	}
 
 	public List<Transaction> getTransactionsByAccountId(Long accountId) {
-		// TODO: [A1] — No ownership check here; IDOR vulnerability (Phase 3)
+		// VULN: [A1] — No ownership check; any authenticated user can list transactions for any account ID (IDOR)
 		return transactionRepository.findBySourceAccountIdOrDestinationAccountId(accountId, accountId);
 	}
 
 	public Optional<Transaction> getTransactionById(Long id) {
-		// TODO: [A1] — No ownership check here; IDOR vulnerability (Phase 3)
+		// VULN: [A1] — No ownership check; any authenticated user can fetch any transaction by ID (IDOR)
 		return transactionRepository.findById(id);
 	}
 
