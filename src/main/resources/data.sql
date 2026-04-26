@@ -1,17 +1,21 @@
 -- ===========================================
 -- RedLedger Test Data
 -- ===========================================
--- Passwords are BCrypt hashed. Plain text passwords:
+-- Passwords are BCrypt hashed except for user mduser. Plain text passwords:
 --   admin    -> admin123
 --   jsmith   -> password123
 --   jdoe     -> password456
+--   mduser   -> password123 (not BCrypt hashed)
 -- ===========================================
 
--- Users (passwords are BCrypt hashed)
+-- Users (passwords are BCrypt hashed except for user mduser)
 INSERT INTO users (id, username, password, email, role, active, created_at) VALUES
 (1, 'admin', '$2b$10$N9pmVzrVnzx3DhqiIU63VOEd2Dglo5lddD33kkVTj2W/gg/GrHh/u', 'admin@redledger.com', 'ROLE_ADMIN', true, '2024-01-01 00:00:00'),
 (2, 'jsmith', '$2b$10$FF5rBkxPwD39Db4fqodDIukFZ9mItg0cjdhEhSIEzB6Cd2g3TbxRa', 'john.smith@email.com', 'ROLE_USER', true, '2024-01-15 10:30:00'),
-(3, 'jdoe', '$2b$10$jEnDFPcrbPX6CVp26lDQa./JG0FlFyRFvm.2lOYwIXnCAM9zI44OG', 'jane.doe@email.com', 'ROLE_USER', true, '2024-02-01 14:00:00');
+(3, 'jdoe', '$2b$10$jEnDFPcrbPX6CVp26lDQa./JG0FlFyRFvm.2lOYwIXnCAM9zI44OG', 'jane.doe@email.com', 'ROLE_USER', true, '2024-02-01 14:00:00'),
+-- VULN: [A2] — password stored as unsalted MD5 hash for /api/auth/login-v2 demonstration
+(4, 'mduser', '482c811da5d5b4bc6d497ffa98491e38', 'md.user@email.com', 'ROLE_USER', true, '2024-02-08 14:00:00')
+;
 
 -- Accounts
 -- Admin accounts
