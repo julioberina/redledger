@@ -30,6 +30,11 @@ public class JwtUtils {
 
 	private SecretKey signingKey;
 
+	/*
+	 * VULN: [A2] — (3.A2.1) JWT signing key is derived from a weak, hardcoded secret ("secret" in
+	 * application.properties). An attacker who brute-forces or guesses the secret can forge arbitrary
+	 * JWTs, including tokens with ROLE_ADMIN, bypassing all authentication and authorization controls.
+	 */
 	@PostConstruct
 	public void init() {
 		this.signingKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
