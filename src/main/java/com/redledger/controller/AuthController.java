@@ -47,4 +47,19 @@ public class AuthController {
 				.body(Map.of("error", ex.getMessage()));
 		}
 	}
+
+	/*
+	 * VULN: [A2] — (3.A2.2) /login-v2 uses MD5 password hashing via loginV2().
+	 * Exists alongside the secure /login path to demonstrate insecure password storage.
+	 */
+	@PostMapping("/login-v2")
+	public ResponseEntity<?> loginV2(@Valid @RequestBody LoginRequest request) {
+		try {
+			LoginResponse response = authService.loginV2(request);
+			return ResponseEntity.ok(response);
+		} catch (IllegalArgumentException ex) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+				.body(Map.of("error", ex.getMessage()));
+		}
+	}
 }
