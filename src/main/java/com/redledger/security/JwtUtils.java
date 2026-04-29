@@ -40,6 +40,11 @@ public class JwtUtils {
 		this.signingKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 	}
 
+	/*
+	 * VULN: [A4] — (3.A4.3) Tokens are issued with a 24-hour expiry and no revocation mechanism.
+	 * There is no token blacklist, no refresh-token rotation, and no short-lived access token pattern.
+	 * A stolen token grants full API access until expiry with no way to invalidate it server-side.
+	 */
 	public String generateToken(String username, String role) {
 		return Jwts.builder()
 			.subject(username)
