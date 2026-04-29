@@ -42,4 +42,14 @@ public class TransactionController {
 			.map(ResponseEntity::ok)
 			.orElse(ResponseEntity.notFound().build());
 	}
+
+	/*
+	 * VULN: [A3] — (3.A3.2) GET /api/transactions/filter?status= passes unsanitised input
+	 * directly to a raw JDBC query in TransactionService.filterTransactionsByStatus().
+	 * Vulnerable to SQL injection via the status query parameter.
+	 */
+	@GetMapping("/filter")
+	public ResponseEntity<?> filterByStatus(@RequestParam String status) {
+		return ResponseEntity.ok(transactionService.filterTransactionsByStatus(status));
+	}
 }

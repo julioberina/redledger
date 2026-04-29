@@ -10,6 +10,7 @@ import com.redledger.repository.AccountRepository;
 import com.redledger.repository.TransactionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +24,14 @@ public class TransactionService {
 
 	private final TransactionRepository transactionRepository;
 	private final AccountRepository accountRepository;
+	private final JdbcTemplate jdbcTemplate;
 
 	public TransactionService(TransactionRepository transactionRepository,
-							  AccountRepository accountRepository) {
+							  AccountRepository accountRepository,
+							  JdbcTemplate jdbcTemplate) {
 		this.transactionRepository = transactionRepository;
 		this.accountRepository = accountRepository;
+		this.jdbcTemplate = jdbcTemplate;
 	}
 
 	/*
@@ -110,5 +114,15 @@ public class TransactionService {
 		response.setStatus(tx.getStatus());
 		response.setCreatedAt(tx.getCreatedAt());
 		return response;
+	}
+
+	/*
+	 * VULN: [A3] — (3.A3.2) Raw user input concatenated directly into SQL query string.
+	 * The `status` parameter is unsanitised — attacker can inject arbitrary SQL via the filter
+	 * endpoint, e.g. `COMPLETED' OR '1'='1` dumps all transactions regardless of ownership.
+	 */
+	public List<java.util.Map<String, Object>> filterTransactionsByStatus(String status) {
+		String query = "SELECT * FROM transactions WHERE status = '" + status + "'";
+		return jdbcTemplate.queryForList(query);
 	}
 }
