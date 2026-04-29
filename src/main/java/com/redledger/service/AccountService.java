@@ -8,6 +8,7 @@ import com.redledger.repository.AccountRepository;
 import com.redledger.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,10 +22,14 @@ public class AccountService {
 
 	private final AccountRepository accountRepository;
 	private final UserRepository userRepository;
+	private final JdbcTemplate jdbcTemplate;
 
-	public AccountService(AccountRepository accountRepository, UserRepository userRepository) {
+	public AccountService(AccountRepository accountRepository,
+						  UserRepository userRepository,
+						  JdbcTemplate jdbcTemplate) {
 		this.accountRepository = accountRepository;
 		this.userRepository = userRepository;
+		this.jdbcTemplate = jdbcTemplate;
 	}
 
 	public Account createAccount(Long userId, AccountType accountType) {
@@ -67,6 +72,16 @@ public class AccountService {
 		response.setOwnerUsername(account.getOwner().getUsername());
 		response.setCreatedAt(account.getCreatedAt());
 		return response;
+	}
+
+	/*
+	 * VULN: [A3] — (3.A3.1) Raw user input concatenated directly into SQL query string.
+	 * No parameterization, no input sanitization. Attacker can inject arbitrary SQL via the
+	 * `name` parameter — e.g. `%' OR '1'='1` dumps all accounts regardless of ownership.
+	 */
+	public List<java.util.Map<String, Object>> searchAccounts(String name) {
+		String query = "SELECT * FROM accounts WHERE account_number LIKE '%" + name + "%'";
+		return jdbcTemplate.queryForList(query);
 	}
 
 	private String generateAccountNumber() {

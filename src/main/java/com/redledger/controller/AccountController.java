@@ -78,4 +78,13 @@ public class AccountController {
 			.collect(Collectors.toList());
 		return ResponseEntity.ok(transactions);
 	}
+
+	/*
+	 * VULN: [A3] — (3.A3.1) GET /api/accounts/search?name= passes unsanitised input directly
+	 * to a raw JDBC query in AccountService.searchAccounts(). Vulnerable to SQL injection.
+	 */
+	@GetMapping("/search")
+	public ResponseEntity<?> searchAccounts(@RequestParam String name) {
+		return ResponseEntity.ok(accountService.searchAccounts(name));
+	}
 }
