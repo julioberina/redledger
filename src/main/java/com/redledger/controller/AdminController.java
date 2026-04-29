@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -62,5 +64,26 @@ public class AdminController {
 		return userService.updateUserRole(id, request.role())
 			.map(user -> ResponseEntity.ok(Map.of("message", "Role updated successfully")))
 			.orElse(ResponseEntity.notFound().build());
+	}
+
+	/*
+	 * VULN: [A3] — (3.A3.3) User-supplied `filename` parameter is concatenated directly into a
+	 * shell command executed via Runtime.exec(). An attacker can inject arbitrary OS commands
+	 * e.g. `; whoami`, `; cat /etc/passwd`, or `; rm -rf /` by manipulating the filename parameter.
+	 */
+	@GetMapping("/export")
+	public ResponseEntity<?> exportFile(@RequestParam String filename) {
+		try {
+			Process process = Runtime.getRuntime().exec("cat " + filename);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			StringBuilder output = new StringBuilder();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				output.append(line).append("\n");
+			}
+			return ResponseEntity.ok(Map.of("output", output.toString()));
+		} catch (Exception e) {
+			return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+		}
 	}
 }
