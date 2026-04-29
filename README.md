@@ -18,14 +18,14 @@ RedLedger is a simulated banking/fintech API built with Spring Boot that demonst
 
 ### Tech Stack
 
-| Component | Technology |
-|-----------|------------|
-| Language | Java 17 |
-| Framework | Spring Boot 4.0.4 |
-| Security | Spring Security 6 + JJWT |
-| Database | H2 (in-memory) |
+| Component | Technology                |
+|-----------|---------------------------|
+| Language | Java 25                   |
+| Framework | Spring Boot 4.0.4         |
+| Security | Spring Security 7 + JJWT  |
+| Database | H2 (in-memory)            |
 | Build Tool | Gradle 9.4.1 (Kotlin DSL) |
-| Container | Docker |
+| Container | Docker                    |
 
 ### Quick Start
 
