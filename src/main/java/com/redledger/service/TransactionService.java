@@ -76,8 +76,10 @@ public class TransactionService {
 
 		transactionRepository.save(tx);
 
-		log.debug("Transfer of {} from account {} to account {} completed",
-			request.getAmount(), source.getId(), destination.getId());
+		// VULN: [A2] — (3.A2.3) Full account numbers logged on every transfer; sensitive financial data exposed in log files
+		log.debug("Transfer of {} from account {} ({}) to account {} ({}) completed",
+			request.getAmount(), source.getId(), source.getAccountNumber(),
+			destination.getId(), destination.getAccountNumber());
 
 		TransferResponse response = new TransferResponse();
 		response.setTransactionId(tx.getId());
