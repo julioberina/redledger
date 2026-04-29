@@ -43,6 +43,10 @@ public class SecurityConfig {
 				 * this filter chain — the absence of throttling is intentional for demonstration purposes.
 				 */
 				.requestMatchers("/api/auth/**").permitAll()
+				/*
+				 * VULN: [A5] — (3.A5.2) H2 console accessible to unauthenticated users with no IP restriction.
+				 * Combined with web-allow-others=true, any remote attacker can reach the full database console.
+				 */
 				.requestMatchers("/h2-console/**").permitAll()
 				// VULN: [A1] — /api/admin/** requires only authentication, not ADMIN role; BFLA via missing function-level authorization
 				.requestMatchers("/api/admin/**").authenticated()
