@@ -36,7 +36,11 @@ public class AccountService {
 		User owner = userRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
 
-		// TODO: [A4] — Predictable sequential account numbers (Phase 3)
+		/*
+		 * VULN: [A4] — (3.A4.2) Account numbers are generated sequentially (ACC00000001, ACC00000002, ...).
+		 * An authenticated attacker can enumerate all valid account IDs by incrementing the suffix,
+		 * enabling targeted IDOR attacks against accounts they don't own.
+		 */
 		String accountNumber = generateAccountNumber();
 
 		Account account = new Account(accountNumber, accountType, BigDecimal.ZERO, owner);
