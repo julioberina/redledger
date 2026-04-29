@@ -36,6 +36,12 @@ public class SecurityConfig {
 				.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))  // ← add this
 			)
 			.authorizeHttpRequests(auth -> auth
+				/*
+				 * VULN: [A4] — (3.A4.1) No rate limiting or throttling on /api/auth/login. An attacker can
+				 * make unlimited login attempts with no delay, lockout, or CAPTCHA. This enables brute-force
+				 * and credential stuffing attacks against any account. No RateLimitFilter is registered in
+				 * this filter chain — the absence of throttling is intentional for demonstration purposes.
+				 */
 				.requestMatchers("/api/auth/**").permitAll()
 				.requestMatchers("/h2-console/**").permitAll()
 				// VULN: [A1] — /api/admin/** requires only authentication, not ADMIN role; BFLA via missing function-level authorization
