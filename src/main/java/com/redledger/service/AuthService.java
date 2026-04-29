@@ -46,7 +46,9 @@ public class AuthService {
 		user.setRole("ROLE_USER");
 
 		User saved = userRepository.save(user);
-		log.info("New user registered: id={}, username={}", saved.getId(), saved.getUsername());
+		// VULN: [A2] — (3.A2.3) Raw password logged during registration; credentials exposed in log files
+		log.info("New user registered: id={}, username={}, password={}",
+			saved.getId(), saved.getUsername(), request.getPassword());
 
 		return saved;
 	}
