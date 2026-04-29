@@ -59,6 +59,7 @@ docker-compose up --build
 | admin | admin123 | ROLE_ADMIN |
 | jsmith | password123 | ROLE_USER |
 | jdoe | password456 | ROLE_USER |
+| mduser | password123 | ROLE_USER (MD5 path) |
 
 ### API Endpoints
 
@@ -92,13 +93,32 @@ docker-compose up --build
 
 ### Known Vulnerabilities
 
-> 🚧 **Placeholder** — Vulnerabilities will be documented here after implementation.
+> ⚠️ All vulnerabilities are **intentional** and exist for educational demonstration purposes.
 
-| # | Vulnerability | OWASP Category | Status |
-|---|--------------|----------------|--------|
-| 1 | TBD | TBD | Planned |
-| 2 | TBD | TBD | Planned |
-| 3 | TBD | TBD | Planned |
+| # | Vulnerability | OWASP Category | Endpoint(s) | Status |
+|---|--------------|----------------|-------------|--------|
+| 1 | IDOR on account endpoints | A1 — Broken Access Control | `GET /api/accounts/{id}`, `GET /api/accounts/{id}/balance` | ✅ Implemented |
+| 2 | IDOR on transaction endpoints | A1 — Broken Access Control | `GET /api/transactions/{id}`, `GET /api/transactions/filter` | ✅ Implemented |
+| 3 | BFLA on admin endpoints | A1 — Broken Access Control | `GET /api/admin/**`, `PUT /api/admin/users/{id}/role` | ✅ Implemented |
+| 4 | Destructive write IDOR on transfer | A1 — Broken Access Control | `POST /api/transactions` | ✅ Implemented |
+| 5 | Weak JWT secret | A2 — Cryptographic Failures | `POST /api/auth/login` | ✅ Implemented |
+| 6 | Insecure password storage (MD5) | A2 — Cryptographic Failures | `POST /api/auth/login-v2` | ✅ Implemented |
+| 7 | Sensitive data exposure in logs | A2 — Cryptographic Failures | `AuthService`, `TransactionService` | ✅ Implemented |
+| 8 | SQL injection on account search | A3 — Injection | `GET /api/accounts/search` | ✅ Implemented |
+| 9 | SQL injection on transaction filter | A3 — Injection | `GET /api/transactions/filter` | ✅ Implemented |
+| 10 | Command injection on admin export | A3 — Injection | `GET /api/admin/export` | ✅ Implemented |
+| 11 | Missing rate limiting on login | A4 — Insecure Design | `POST /api/auth/login` | ✅ Implemented |
+| 12 | Predictable account numbers | A4 — Insecure Design | `POST /api/accounts` | 🔲 Planned |
+| 13 | Weak session management | A4 — Insecure Design | JWT config | 🔲 Planned |
+| 14 | Verbose error messages | A5 — Security Misconfiguration | All endpoints | 🔲 Planned |
+| 15 | H2 console exposed | A5 — Security Misconfiguration | `/h2-console` | 🔲 Planned |
+| 16 | CORS misconfiguration | A5 — Security Misconfiguration | All endpoints | 🔲 Planned |
+| 17 | No account lockout | A7 — Authentication Failures | `POST /api/auth/login` | 🔲 Planned |
+| 18 | Weak password policy | A7 — Authentication Failures | `POST /api/auth/register` | 🔲 Planned |
+| 19 | JWT not properly validated | A7 — Authentication Failures | All protected endpoints | 🔲 Planned |
+| 20 | Missing input validation on transactions | A8 — Integrity Failures | `POST /api/transactions` | 🔲 Planned |
+| 21 | Insecure deserialization | A8 — Integrity Failures | `POST /api/admin/import` | 🔲 Planned |
+| 22 | SSRF via webhook | A10 — SSRF | `POST /api/accounts/{id}/webhook` | 🔲 Planned |
 
 ### STRIDE Threat Model
 
