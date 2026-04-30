@@ -4,12 +4,14 @@ import com.redledger.dto.UpdateUserRoleRequest;
 import com.redledger.entity.User;
 import com.redledger.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -84,6 +86,24 @@ public class AdminController {
 			return ResponseEntity.ok(Map.of("output", output.toString()));
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+		}
+	}
+
+	/*
+	 * VULN: [A8] — (3.A8.2) Insecure deserialization.
+	 * Accepts a raw Java serialized object and deserializes it with no validation,
+	 * type filtering, or integrity check. Combined with commons-collections 3.2.1
+	 * on the classpath, this endpoint is exploitable via a gadget chain for
+	 * remote code execution (RCE). CWE-502: Deserialization of Untrusted Data.
+	 */
+	@PostMapping(value = "/import", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	public ResponseEntity<?> importData(@RequestBody byte[] data) {
+		try (ObjectInputStream ois = new ObjectInputStream(
+			new java.io.ByteArrayInputStream(data))) {
+			Object obj = ois.readObject();
+			return ResponseEntity.ok(Map.of("message", "Import successful", "type", obj.getClass().getName()));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
 		}
 	}
 }
