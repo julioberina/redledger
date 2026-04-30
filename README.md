@@ -108,17 +108,17 @@ docker-compose up --build
 | 9 | SQL injection on transaction filter | A3 — Injection | `GET /api/transactions/filter` | ✅ Implemented |
 | 10 | Command injection on admin export | A3 — Injection | `GET /api/admin/export` | ✅ Implemented |
 | 11 | Missing rate limiting on login | A4 — Insecure Design | `POST /api/auth/login` | ✅ Implemented |
-| 12 | Predictable account numbers | A4 — Insecure Design | `POST /api/accounts` | 🔲 Planned |
-| 13 | Weak session management | A4 — Insecure Design | JWT config | 🔲 Planned |
-| 14 | Verbose error messages | A5 — Security Misconfiguration | All endpoints | 🔲 Planned |
-| 15 | H2 console exposed | A5 — Security Misconfiguration | `/h2-console` | 🔲 Planned |
-| 16 | CORS misconfiguration | A5 — Security Misconfiguration | All endpoints | 🔲 Planned |
-| 17 | No account lockout | A7 — Authentication Failures | `POST /api/auth/login` | 🔲 Planned |
-| 18 | Weak password policy | A7 — Authentication Failures | `POST /api/auth/register` | 🔲 Planned |
-| 19 | JWT not properly validated | A7 — Authentication Failures | All protected endpoints | 🔲 Planned |
-| 20 | Missing input validation on transactions | A8 — Integrity Failures | `POST /api/transactions` | 🔲 Planned |
-| 21 | Insecure deserialization | A8 — Integrity Failures | `POST /api/admin/import` | 🔲 Planned |
-| 22 | SSRF via webhook | A10 — SSRF | `POST /api/accounts/{id}/webhook` | 🔲 Planned |
+| 12 | Predictable account numbers | A4 — Insecure Design | `POST /api/accounts` | ✅ Implemented |
+| 13 | Weak session management | A4 — Insecure Design | JWT config | ✅ Implemented |
+| 14 | Verbose error messages | A5 — Security Misconfiguration | All endpoints | ✅ Implemented |
+| 15 | H2 console exposed | A5 — Security Misconfiguration | `/h2-console` | ✅ Implemented |
+| 16 | CORS misconfiguration | A5 — Security Misconfiguration | All endpoints | ✅ Implemented |
+| 17 | No account lockout | A7 — Authentication Failures | `POST /api/auth/login` | ✅ Implemented |
+| 18 | Weak password policy | A7 — Authentication Failures | `POST /api/auth/register` | ✅ Implemented |
+| 19 | JWT not properly validated | A7 — Authentication Failures | All protected endpoints | ✅ Implemented |
+| 20 | Missing input validation on transactions | A8 — Integrity Failures | `POST /api/transactions` | ✅ Implemented |
+| 21 | Insecure deserialization | A8 — Integrity Failures | `POST /api/admin/import` | ✅ Implemented |
+| 22 | SSRF via webhook | A10 — SSRF | `POST /api/accounts/{id}/webhook` | ✅ Implemented |
 
 ### STRIDE Threat Model
 
