@@ -54,6 +54,12 @@ public class TransactionService {
 		if (source.getId().equals(destination.getId()))
 			throw new IllegalArgumentException("Source and destination accounts must differ");
 
+		/*
+		 * VULN: [A8] — (3.A8.1) No input validation on transfer amount.
+		 * Negative amounts pass the balance check and reverse the money flow,
+		 * crediting the source and debiting the destination. Zero amounts complete
+		 * successfully and pollute the transaction history.
+		 */
 		if (source.getBalance().compareTo(request.getAmount()) < 0) {
 			log.warn("Insufficient balance on account {} for transfer of {}",
 				source.getId(), request.getAmount());
