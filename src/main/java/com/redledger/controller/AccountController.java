@@ -87,4 +87,18 @@ public class AccountController {
 	public ResponseEntity<?> searchAccounts(@RequestParam String name) {
 		return ResponseEntity.ok(accountService.searchAccounts(name));
 	}
+
+	/*
+	 * VULN: [A10] — (3.A10.1) SSRF via webhook callback URL.
+	 * Accepts a user-supplied URL and fetches it server-side with no validation.
+	 */
+	@PostMapping("/{id}/webhook")
+	public ResponseEntity<?> triggerWebhook(@PathVariable Long id, @RequestParam String url) {
+		try {
+			String result = accountService.fetchWebhook(url);
+			return ResponseEntity.ok(Map.of("response", result));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+		}
+	}
 }
