@@ -11,7 +11,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,6 +90,34 @@ public class AccountService {
 	public List<java.util.Map<String, Object>> searchAccounts(String name) {
 		String query = "SELECT * FROM accounts WHERE account_number LIKE '%" + name + "%'";
 		return jdbcTemplate.queryForList(query);
+	}
+
+	/*
+	 * VULN: [A10] — (3.A10.1) SSRF via webhook callback URL.
+	 * User-supplied URL is fetched server-side with no allowlist, blocklist, or
+	 * scheme validation. Attacker can probe internal network resources including
+	 * cloud metadata endpoints (http://169.254.169.254/latest/meta-data/),
+	 * internal services (http://localhost:8080/h2-console), and private subnets.
+	 * CWE-918: Server-Side Request Forgery.
+	 */
+	public String fetchWebhook(String webhookUrl) throws Exception {
+		URL url = new URL(webhookUrl);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+		connection.setRequestMethod("GET");
+		connection.setConnectTimeout(3000);
+		connection.setReadTimeout(3000);
+
+		StringBuilder response = new StringBuilder();
+
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+			String line;
+
+			while ((line = reader.readLine()) != null)
+				response.append(line).append("\n");
+		}
+
+		return response.toString();
 	}
 
 	private String generateAccountNumber() {
