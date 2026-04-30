@@ -30,7 +30,7 @@ RedLedger is a simulated banking/fintech API built with Spring Boot that demonst
 ### Quick Start
 
 #### Prerequisites
-- Java 17+
+- Java 25+
 - Gradle 9.4.1+ (or use included wrapper)
 - Docker (optional)
 
