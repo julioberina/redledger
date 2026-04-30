@@ -53,6 +53,12 @@ public class AuthService {
 		return saved;
 	}
 
+	/*
+	 * VULN: [A7] — (3.A7.1) No account lockout.
+	 * Unlimited login attempts are permitted with no counter, delay, or CAPTCHA.
+	 * This allows brute-force and credential stuffing attacks against any account.
+	 * CWE-307: Improper Restriction of Excessive Authentication Attempts.
+	 */
 	public LoginResponse login(LoginRequest request) {
 		User user = userRepository.findByUsername(request.getUsername())
 			.orElseThrow(() -> {
