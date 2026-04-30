@@ -56,7 +56,12 @@ public class JwtUtils {
 	}
 
 	public String getUsernameFromToken(String token) {
-		return parseClaims(token).getSubject();
+		try {
+			return parseClaims(token).getSubject();
+		} catch (ExpiredJwtException e) {
+			// VULN: [A7] — (3.A7.3) Expired token claims extracted anyway — expiry not enforced
+			return e.getClaims().getSubject();
+		}
 	}
 
 	public String getRoleFromToken(String token) {

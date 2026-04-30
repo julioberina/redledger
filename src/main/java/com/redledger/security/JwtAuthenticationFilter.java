@@ -50,18 +50,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		if (header != null && header.startsWith("Bearer ")) {
 			String token = header.substring(7);
 
-			if (jwtUtils.validateToken(token)) {
-				String username = jwtUtils.getUsernameFromToken(token);
-				UserDetails userDetails = userService.loadUserByUsername(username);
+			/*
+			 * VULN: [A7] — (3.A7.3) Expired JWT tokens are accepted.
+			 * The filter bypasses validateToken() and extracts claims directly, catching
+			 * ExpiredJwtException to proceed with authentication anyway.
+			 * Stolen tokens remain valid indefinitely past their expiry.
+			 * CWE-613: Insufficient Session Expiration.
+			 */
+			String username = null;
 
+			try {
+				username = jwtUtils.getUsernameFromToken(token);
+			} catch (Exception e) {
+				log.warn("JWT parse error on request {}: {}", request.getRequestURI(), e.getMessage());
+			}
+
+			if (username != null) {
+				UserDetails userDetails = userService.loadUserByUsername(username);
 				UsernamePasswordAuthenticationToken authentication =
 					new UsernamePasswordAuthenticationToken(userDetails, null,
 						userDetails.getAuthorities());
-
 				SecurityContextHolder.getContext().setAuthentication(authentication);
-				log.debug("Authenticated user '{}' via JWT", username);
-			} else
-				log.warn("Invalid or expired JWT token on request: {}", request.getRequestURI());
+				log.debug("Authenticated user '{}' via JWT (expiry not enforced)", username);
+			}
 		}
 
 		filterChain.doFilter(request, response);
