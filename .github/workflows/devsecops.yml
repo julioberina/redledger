@@ -33,14 +33,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'oracle'
+          cache: gradle
+
       - name: Run Snyk SCA Scan
-        # TODO: Configure Snyk token and enable scan
-        # uses: snyk/actions/gradle@master
-        # env:
-        #   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        # with:
-        #   args: --severity-threshold=medium
-        run: echo "Snyk SCA scan placeholder - configure SNYK_TOKEN secret to enable"
+        uses: snyk/actions/gradle-9-jdk24@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=medium --sarif-file-output=snyk.sarif
+
+      - name: Upload Snyk results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk.sarif
+
+      - name: Save Snyk JSON report as artifact
+        run: snyk test --json > docs/evidence/snyk-report.json || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Upload Snyk report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-report
+          path: docs/evidence/snyk-report.json
 
   sast-semgrep:
     runs-on: ubuntu-latest
