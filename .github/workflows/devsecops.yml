@@ -150,11 +150,11 @@ jobs:
         if: always()
         with:
           name: owasp-dependency-check-html
-          path: docs/evidence/owasp-dependency-check-report.html
+          path: docs/evidence/dependency-check-report.html
 
       - name: Upload JSON report
         uses: actions/upload-artifact@v6
         if: always()
         with:
           name: owasp-dependency-check-json
-          path: docs/evidence/owasp-dependency-check-report.json
+          path: docs/evidence/dependency-check-report.json
