@@ -44,16 +44,22 @@ jobs:
           distribution: 'oracle'
           cache: gradle
 
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@master
+
       - name: Run Snyk SCA Scan
-        uses: snyk/actions/gradle-9-jdk24@master
-        continue-on-error: true
+        run: |
+          mkdir -p docs/evidence
+          snyk test \
+            --severity-threshold=medium \
+            --sarif-file-output=snyk.sarif \
+            --json-file-output=docs/evidence/snyk-report.json \
+            || true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=medium --sarif-file-output=snyk.sarif --json-file-output=docs/evidence/snyk-report.json
 
       - name: Upload Snyk results to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: snyk.sarif
