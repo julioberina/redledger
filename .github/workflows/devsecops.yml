@@ -94,13 +94,13 @@ jobs:
       - name: Run Semgrep SAST Scan
         run: |
           semgrep scan \
-            --config auto \
+            --config p/default \
             --sarif \
             --output semgrep.sarif \
             --metrics=off \
             .
           semgrep scan \
-            --config auto \
+            --config p/default \
             --json \
             -o docs/evidence/semgrep-report.json \
             --metrics=off \
