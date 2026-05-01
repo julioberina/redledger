@@ -97,8 +97,12 @@ jobs:
             --config auto \
             --sarif \
             --output semgrep.sarif \
+            --metrics=off \
+            .
+          semgrep scan \
+            --config auto \
             --json \
-            --output-json docs/evidence/semgrep-report.json \
+            -o docs/evidence/semgrep-report.json \
             --metrics=off \
             .
 
