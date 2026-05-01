@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "4.0.4"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("org.owasp.dependencycheck") version "12.2.1"
 }
 
 group = "com.redledger"
@@ -15,6 +16,13 @@ java {
 
 repositories {
 	mavenCentral()
+}
+
+dependencyCheck {
+	failBuildOnCVSS = 11.0f
+	formats = listOf("HTML", "JSON")
+	outputDirectory = file("docs/evidence")
+	nvd.apiKey = System.getenv("NVD_API_KEY") ?: ""
 }
 
 dependencies {
