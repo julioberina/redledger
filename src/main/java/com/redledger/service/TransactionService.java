@@ -68,11 +68,7 @@ public class TransactionService {
 				request.getAmount(), request.getDescription(), TransactionStatus.FAILED);
 
 			transactionRepository.save(failed);
-
-			TransferResponse response = new TransferResponse();
-			response.setStatus(TransactionStatus.FAILED);
-
-			return response;
+			return toTransferResponse(failed);
 		}
 
 		source.setBalance(source.getBalance().subtract(request.getAmount()));
@@ -91,11 +87,7 @@ public class TransactionService {
 			request.getAmount(), source.getId(), source.getAccountNumber(),
 			destination.getId(), destination.getAccountNumber());
 
-		TransferResponse response = new TransferResponse();
-		response.setTransactionId(tx.getId());
-		response.setStatus(TransactionStatus.COMPLETED);
-
-		return response;
+		return toTransferResponse(tx);
 	}
 
 	public List<Transaction> getTransactionsByAccountId(Long accountId) {
@@ -115,6 +107,18 @@ public class TransactionService {
 		response.setSourceAccountNumber(tx.getSourceAccount().getAccountNumber());
 		response.setDestinationAccountId(tx.getDestinationAccount().getId());
 		response.setDestinationAccountNumber(tx.getDestinationAccount().getAccountNumber());
+		response.setAmount(tx.getAmount());
+		response.setDescription(tx.getDescription());
+		response.setStatus(tx.getStatus());
+		response.setCreatedAt(tx.getCreatedAt());
+		return response;
+	}
+
+	public TransferResponse toTransferResponse(Transaction tx) {
+		TransferResponse response = new TransferResponse();
+		response.setTransactionId(tx.getId());
+		response.setSourceAccountId(tx.getSourceAccount().getId());
+		response.setDestinationAccountId(tx.getDestinationAccount().getId());
 		response.setAmount(tx.getAmount());
 		response.setDescription(tx.getDescription());
 		response.setStatus(tx.getStatus());
